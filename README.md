@@ -21,6 +21,16 @@
 
 **Optimite** is built with simplicity and efficiency in mind. It helps users reclaim computing resources and boost system responsiveness with minimal effort. Whether your machine is slowing down due to memory bloat or cluttered storage, Optimite swiftly cleans it up, bringing back the snappy performance you need.
 
+## 📸 Screenshots
+
+| Dashboard | Memory |
+|:---:|:---:|
+| <img src="screenshot_dashboard.png" width="400" alt="Dashboard" /> | <img src="screenshot_memory.png" width="400" alt="Memory" /> |
+
+| Storage | Processes |
+|:---:|:---:|
+| <img src="screenshot_storage.png" width="400" alt="Storage" /> | <img src="screenshot_processes.png" width="400" alt="Processes" /> |
+
 ## ✨ Features
 
 - ⚡ **Memory Optimization:** Instantly free up RAM to ensure your active applications run seamlessly without stuttering.
