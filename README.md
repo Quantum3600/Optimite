@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="composeResources/Optimite.png" width="150" alt="Optimite Logo" />
+  <img src="composeApp/src/jvmMain/composeResources/drawable/Optimite.png" width="150" alt="Optimite Logo" />
 </p>
 
 <h1 align="center">Optimite</h1>
