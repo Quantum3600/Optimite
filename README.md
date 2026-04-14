@@ -67,7 +67,7 @@ To build and run Optimite locally, ensure you have the following installed:
 3. **Sync Gradle** to download all necessary dependencies.
 4. **Run the desktop application:**
    ```bash
-   ./gradlew run
+   ./gradlew composeApp:jvmRun
    ```
 
 ## 🤝 Contributing
