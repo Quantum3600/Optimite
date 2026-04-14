@@ -25,11 +25,11 @@
 
 | Dashboard | Memory |
 |:---:|:---:|
-| <img src="screenshot_dashboard.png" width="400" alt="Dashboard" /> | <img src="screenshot_memory.png" width="400" alt="Memory" /> |
+| <img src=".github/public/Screenshot 2026-04-14 234147.png" width="400" alt="Dashboard" /> | <img src=".github/public/Screenshot 2026-04-14 234200.png" width="400" alt="Memory" /> |
 
 | Storage | Processes |
 |:---:|:---:|
-| <img src="screenshot_storage.png" width="400" alt="Storage" /> | <img src="screenshot_processes.png" width="400" alt="Processes" /> |
+| <img src=".github/public/Screenshot 2026-04-14 234943.png" width="400" alt="Storage" /> | <img src=".github/public/Screenshot 2026-04-14 234225.png" width="400" alt="Processes" /> |
 
 ## ✨ Features
 
