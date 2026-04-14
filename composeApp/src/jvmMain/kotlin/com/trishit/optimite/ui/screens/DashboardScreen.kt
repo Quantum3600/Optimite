@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +23,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.DeleteSweep
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,20 +38,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.trishit.optimite.ui.AppUiState
-import com.trishit.optimite.ui.components.ActionButton
+import com.trishit.optimite.ui.components.ActionOption
 import com.trishit.optimite.ui.components.AnimatedCounter
 import com.trishit.optimite.ui.components.CircularGauge
-import com.trishit.optimite.ui.components.GlowCard
+import com.trishit.optimite.ui.components.ConnectedButtonGroup
 import com.trishit.optimite.ui.components.MiniSparkline
 import com.trishit.optimite.ui.components.SectionLabel
+import com.trishit.optimite.ui.components.StaggerCard
 import com.trishit.optimite.ui.components.StatusChip
 import com.trishit.optimite.ui.components.UsageBar
 import com.trishit.optimite.ui.theme.AppColors
 import com.trishit.optimite.ui.theme.EaseOutCubic
+import optimite.composeapp.generated.resources.Optimite
+import optimite.composeapp.generated.resources.Res
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun DashboardScreen(state: AppUiState, onOptimize: () -> Unit, onClean: () -> Unit) {
@@ -68,9 +78,10 @@ fun DashboardScreen(state: AppUiState, onOptimize: () -> Unit, onClean: () -> Un
         ) {
             Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
                 Column {
-                    Text("SYSTEM OPTIMIZER", style = MaterialTheme.typography.headlineLarge, color = AppColors.TextPrimary)
+                    Text("SYSTEM PERFORMANCE", style = MaterialTheme.typography.headlineLarge, color = AppColors.TextPrimary)
                     Text("Real-time performance monitor", style = MaterialTheme.typography.bodySmall, color = AppColors.TextMuted)
                 }
+
                 val mem = state.memoryInfo
                 val usage = mem?.usagePercent ?: 0f
                 val (txt, col) = when {
@@ -84,7 +95,7 @@ fun DashboardScreen(state: AppUiState, onOptimize: () -> Unit, onClean: () -> Un
 
         // ── Gauges ───────────────────────────────────────────────────────────────
         StaggerCard(entered, delayMs = 60) {
-            GlowCard(modifier = Modifier.fillMaxWidth(), glowColor = AppColors.Primary) {
+            Column(modifier = Modifier.fillMaxWidth()) {
                 SectionLabel("System Overview")
                 Spacer(Modifier.height(12.dp))
                 Row(Modifier.fillMaxWidth(), Arrangement.SpaceEvenly) {
@@ -124,11 +135,24 @@ fun DashboardScreen(state: AppUiState, onOptimize: () -> Unit, onClean: () -> Un
                 }
             }
         }
+        // ── Actions ────────────────────────────────────────────────────────────────
+        StaggerCard(entered, delayMs = 240) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                SectionLabel("Actions")
+                Spacer(Modifier.height(12.dp))
+                ConnectedButtonGroup(
+                    options = listOf(
+                        ActionOption(icon = Icons.Default.Bolt ,"Optimize", onOptimize, isLoading = state.isOptimizing, color = MaterialTheme.colorScheme.onPrimary),
+                        ActionOption(icon = Icons.Rounded.DeleteSweep, "Clean", onClean, isLoading = state.isCleaning, color = MaterialTheme.colorScheme.onPrimary)
+                    )
+                )
+            }
+        }
 
         // ── Memory bar card ───────────────────────────────────────────────────────
         StaggerCard(entered, delayMs = 120) {
             state.memoryInfo?.let { mem ->
-                GlowCard(modifier = Modifier.fillMaxWidth(), glowColor = AppColors.Primary) {
+                Column(modifier = Modifier.fillMaxWidth()) {
                     Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
                         SectionLabel("Memory")
                         Text(
@@ -157,7 +181,7 @@ fun DashboardScreen(state: AppUiState, onOptimize: () -> Unit, onClean: () -> Un
         // ── Storage summary ────────────────────────────────────────────────────────
         StaggerCard(entered, delayMs = 180) {
             state.storageInfo?.drives?.firstOrNull()?.let { drive ->
-                GlowCard(modifier = Modifier.fillMaxWidth(), glowColor = AppColors.Secondary) {
+                Column(modifier = Modifier.fillMaxWidth()) {
                     Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
                         SectionLabel("Primary Storage")
                         Text(
@@ -174,19 +198,7 @@ fun DashboardScreen(state: AppUiState, onOptimize: () -> Unit, onClean: () -> Un
             }
         }
 
-        // ── Actions ────────────────────────────────────────────────────────────────
-        StaggerCard(entered, delayMs = 240) {
-            GlowCard(modifier = Modifier.fillMaxWidth()) {
-                SectionLabel("Actions")
-                Spacer(Modifier.height(12.dp))
-                Row(Modifier.fillMaxWidth(), Arrangement.spacedBy(12.dp)) {
-                    ActionButton("⚡ Optimize Memory", onOptimize, Modifier.weight(1f),
-                        isLoading = state.isOptimizing, color = AppColors.Primary)
-                    ActionButton("🗑 Clean Temp Files", onClean, Modifier.weight(1f),
-                        isLoading = state.isCleaning, color = AppColors.Secondary)
-                }
-            }
-        }
+
 
         // ── Result toast ──────────────────────────────────────────────────────────
         AnimatedVisibility(
@@ -215,14 +227,6 @@ fun DashboardScreen(state: AppUiState, onOptimize: () -> Unit, onClean: () -> Un
     }
 }
 
-@Composable
-private fun StaggerCard(entered: Boolean, delayMs: Int, content: @Composable () -> Unit) {
-    AnimatedVisibility(
-        visible = entered,
-        enter = fadeIn(tween(350, delayMillis = delayMs)) +
-                slideInVertically(tween(400, delayMillis = delayMs, easing = EaseOutCubic)) { 24 }
-    ) { content() }
-}
 
 @Composable
 private fun MemStat(label: String, value: String, unit: String, color: Color, modifier: Modifier = Modifier) {

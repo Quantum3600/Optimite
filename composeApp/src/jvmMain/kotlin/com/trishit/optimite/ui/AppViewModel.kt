@@ -1,5 +1,11 @@
 package com.trishit.optimite.ui
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Dashboard
+import androidx.compose.material.icons.rounded.Memory
+import androidx.compose.material.icons.rounded.Storage
+import androidx.compose.material.icons.rounded.TaskAlt
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.trishit.optimite.domain.model.MemoryInfo
 import com.trishit.optimite.domain.model.OptimizationResult
 import com.trishit.optimite.domain.model.ProcessInfo
@@ -23,11 +29,11 @@ data class AppUiState(
     val error: String? = null
 )
 
-enum class AppTab(val label: String, val icon: String) {
-    DASHBOARD("Dashboard", "⬡"),
-    MEMORY("Memory", "◈"),
-    STORAGE("Storage", "▣"),
-    PROCESSES("Processes", "⊞")
+enum class AppTab(val label: String, val icon: ImageVector) {
+    DASHBOARD("Dashboard", Icons.Rounded.Dashboard),
+    MEMORY("Memory", Icons.Rounded.Memory),
+    STORAGE("Storage", Icons.Rounded.Storage),
+    PROCESSES("Processes", Icons.Rounded.TaskAlt)
 }
 
 class AppViewModel(

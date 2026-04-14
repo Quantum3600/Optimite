@@ -35,7 +35,7 @@ fun main() = application {
     }
 
     val windowState = rememberWindowState(
-        size = DpSize(1100.dp, 740.dp),
+        size = DpSize(700.dp, 740.dp),
         position = WindowPosition.PlatformDefault
     )
     val useTransparentWindow = !Platform.isWindows()

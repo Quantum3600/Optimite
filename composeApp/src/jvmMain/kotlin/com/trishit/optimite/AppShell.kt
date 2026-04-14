@@ -54,8 +54,7 @@ fun AppShell(
     }
 
     RoundedWindowSurface(
-        cornerRadius = 12.dp,
-        borderColor = AppColors.Primary.copy(0.25f)
+        cornerRadius = if(windowState.placement == WindowPlacement.Maximized) 0.dp else 12.dp,
     ) {
         Column(Modifier.fillMaxSize()) {
             // Custom title bar — always shown since window is undecorated

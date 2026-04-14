@@ -19,6 +19,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -27,24 +32,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.trishit.optimite.domain.model.ProcessInfo
 import com.trishit.optimite.ui.AppUiState
-import com.trishit.optimite.ui.components.GlowCard
+import com.trishit.optimite.ui.components.StaggerCard
 import com.trishit.optimite.ui.theme.AppColors
 
 @Composable
 fun ProcessesScreen(state: AppUiState) {
+    var entered by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { entered = true }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Row(
             Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("TOP PROCESSES", style = MaterialTheme.typography.headlineLarge)
+            Text("TOP PROCESSES", style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.onSurface)
             Text(
                 "${state.processes.size} tracked",
                 style = MaterialTheme.typography.bodySmall,
@@ -53,7 +61,7 @@ fun ProcessesScreen(state: AppUiState) {
         }
 
         // Header row
-        GlowCard(modifier = Modifier.fillMaxWidth()) {
+        StaggerCard(entered = entered, delayMs = 40, modifier = Modifier.fillMaxWidth()) {
             Row(Modifier.fillMaxWidth()) {
                 Text("PROCESS", Modifier.weight(3f), style = MaterialTheme.typography.labelSmall, color = AppColors.TextMuted)
                 Text("PID", Modifier.weight(1f), style = MaterialTheme.typography.labelSmall, color = AppColors.TextMuted)
@@ -65,12 +73,19 @@ fun ProcessesScreen(state: AppUiState) {
 
         val maxMem = state.processes.maxOfOrNull { it.memoryMb }?.toFloat()?.coerceAtLeast(1f) ?: 1f
 
+        val lastProcessIndex = state.processes.lastIndex
         state.processes.forEachIndexed { idx, proc ->
-            ProcessRow(proc, idx, maxMem)
+            ProcessRow(
+                proc = proc,
+                index = idx,
+                maxMem = maxMem,
+                isFirst = idx == 0,
+                isLast = idx == lastProcessIndex
+            )
         }
 
         if (state.processes.isEmpty()) {
-            GlowCard(modifier = Modifier.fillMaxWidth()) {
+            StaggerCard(entered = entered, delayMs = 80, modifier = Modifier.fillMaxWidth()) {
                 Text(
                     "Fetching process list...",
                     style = MaterialTheme.typography.bodyMedium,
@@ -88,20 +103,32 @@ fun ProcessesScreen(state: AppUiState) {
     }
 }
 
+
 @Composable
-private fun ProcessRow(proc: ProcessInfo, index: Int, maxMem: Float) {
+private fun ProcessRow(
+    proc: ProcessInfo,
+    index: Int,
+    maxMem: Float,
+    isFirst: Boolean,
+    isLast: Boolean
+) {
     val memPercent = (proc.memoryMb.toFloat() / maxMem) * 100f
     val rowColor = when {
         memPercent >= 80f -> AppColors.Danger
         memPercent >= 50f -> AppColors.Warning
         else -> AppColors.Border
     }
+    val rowShape = RoundedCornerShape(
+        topStart = if (isFirst) 20.dp else 4.dp,
+        topEnd = if (isFirst) 20.dp else 4.dp,
+        bottomStart = if (isLast) 20.dp else 4.dp,
+        bottomEnd = if (isLast) 20.dp else 4.dp
+    )
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppColors.SurfaceVariant, RoundedCornerShape(6.dp))
-            .border(1.dp, rowColor.copy(alpha = 0.3f), RoundedCornerShape(6.dp))
+            .background(AppColors.SurfaceVariant, rowShape)
     ) {
         // Memory fill indicator
         Box(
@@ -109,15 +136,12 @@ private fun ProcessRow(proc: ProcessInfo, index: Int, maxMem: Float) {
                 .fillMaxHeight()
                 .fillMaxWidth(memPercent / 100f)
                 .background(
-                    Brush.horizontalGradient(
-                        0f to Color.Transparent,
-                        1f to rowColor.copy(alpha = 0.06f)
-                    ),
-                    RoundedCornerShape(6.dp)
+                    rowColor.copy(alpha = 0.2f),
+                    rowShape
                 )
         )
         Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Rank
