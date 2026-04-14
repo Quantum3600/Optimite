@@ -20,7 +20,6 @@ import com.trishit.optimite.ui.App
 import com.trishit.optimite.ui.AppViewModel
 import com.trishit.optimite.ui.components.CustomTitleBar
 import com.trishit.optimite.ui.components.RoundedWindowSurface
-import com.trishit.optimite.ui.theme.AppColors
 
 @Composable
 fun AppShell(

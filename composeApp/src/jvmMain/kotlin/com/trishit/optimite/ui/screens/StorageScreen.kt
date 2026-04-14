@@ -3,18 +3,6 @@ package com.trishit.optimite.ui.screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.hoverable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -32,7 +19,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -45,27 +31,26 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.text.font.FontWeight
 import com.trishit.optimite.domain.model.DriveInfo
 import com.trishit.optimite.domain.model.DriveType
 import com.trishit.optimite.ui.AppUiState
 import com.trishit.optimite.ui.components.ActionButton
 import com.trishit.optimite.ui.components.SectionLabel
-import com.trishit.optimite.ui.components.SpringSnappy
 import com.trishit.optimite.ui.components.StaggerCard
 import com.trishit.optimite.ui.components.StatValue
 import com.trishit.optimite.ui.components.UsageBar
 import com.trishit.optimite.ui.theme.AppColors
 import com.trishit.optimite.ui.theme.FunnelDisplay
+import optimite.composeapp.generated.resources.Res
+import optimite.composeapp.generated.resources.cloud
+import optimite.composeapp.generated.resources.hard_drive
+import optimite.composeapp.generated.resources.hard_drive_2
+import optimite.composeapp.generated.resources.question_mark
+import org.jetbrains.compose.resources.painterResource
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -183,12 +168,12 @@ private fun DriveCard(drive: DriveInfo, entered: Boolean, delayMs: Int) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 val icon = when (drive.type) {
-                    DriveType.SYSTEM -> "⬛"
-                    DriveType.REMOVABLE -> "◼"
-                    DriveType.NETWORK -> "◈"
-                    DriveType.UNKNOWN -> "▣"
+                    DriveType.SYSTEM -> Res.drawable.hard_drive_2
+                    DriveType.REMOVABLE -> Res.drawable.hard_drive
+                    DriveType.NETWORK -> Res.drawable.cloud
+                    DriveType.UNKNOWN -> Res.drawable.question_mark
                 }
-                Text(icon, fontSize = 16.sp)
+                Icon(painterResource(icon) , contentDescription = drive.type.name)
                 Column {
                     Text(
                         drive.name,
