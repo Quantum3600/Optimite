@@ -37,7 +37,7 @@
 - 🧹 **Storage Cleanup:** Identify and clear out temporary files, caches, and unnecessary data to reclaim valuable disk space.
 - 🎨 **Modern & Expressive UI:** Built using **Material 3 Expressive**, offering a beautiful, fluid, and intuitive user experience.
 - 🪶 **Lightweight & Fast:** Engineered in Kotlin to have a minimal footprint while delivering maximum performance.
-- 💻 **Native Desktop Experience:** Perfectly tailored for Windows environments using Compose Multiplatform.
+- 💻 **Native Desktop Experience:** Perfectly tailored for Windows environments using Compose Multiplatform but MacOS and Linux is also supported.
 
 ## 🛠️ Tech Stack
 
