@@ -17,17 +17,36 @@ import com.trishit.optimite.domain.usecase.OptimizeMemoryUseCase
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
+enum class ProcessSort { NAME, MEMORY, CPU, PID }
+
 data class AppUiState(
     val memoryInfo: MemoryInfo? = null,
     val storageInfo: StorageInfo? = null,
     val processes: List<ProcessInfo> = emptyList(),
+    val processSearchQuery: String = "",
+    val processSortBy: ProcessSort = ProcessSort.MEMORY,
     val isOptimizing: Boolean = false,
     val isCleaning: Boolean = false,
     val lastOptimization: OptimizationResult? = null,
     val memoryHistory: List<Float> = emptyList(),
     val selectedTab: AppTab = AppTab.DASHBOARD,
     val error: String? = null
-)
+) {
+    val filteredProcesses: List<ProcessInfo>
+        get() = processes
+            .filter { 
+                it.name.contains(processSearchQuery, ignoreCase = true) || 
+                it.pid.toString().contains(processSearchQuery) 
+            }
+            .let { list ->
+                when (processSortBy) {
+                    ProcessSort.NAME -> list.sortedBy { it.name.lowercase() }
+                    ProcessSort.MEMORY -> list.sortedByDescending { it.memoryMb }
+                    ProcessSort.CPU -> list.sortedByDescending { it.cpuPercent }
+                    ProcessSort.PID -> list.sortedBy { it.pid }
+                }
+            }
+}
 
 enum class AppTab(val label: String, val icon: ImageVector) {
     DASHBOARD("Dashboard", Icons.Rounded.Dashboard),
@@ -71,10 +90,19 @@ class AppViewModel(
 
     private fun observeProcesses() {
         scope.launch {
-            getProcesses.observe(15).collect { procs ->
+            // Increased limit to 50 for better filtering
+            getProcesses.observe(50).collect { procs ->
                 _state.update { it.copy(processes = procs) }
             }
         }
+    }
+
+    fun onProcessSearch(query: String) {
+        _state.update { it.copy(processSearchQuery = query) }
+    }
+
+    fun onProcessSort(sort: ProcessSort) {
+        _state.update { it.copy(processSortBy = sort) }
     }
 
     fun optimize() {

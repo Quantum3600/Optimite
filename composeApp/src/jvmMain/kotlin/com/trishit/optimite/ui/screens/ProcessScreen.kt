@@ -1,6 +1,7 @@
 package com.trishit.optimite.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,11 +12,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Sort
+import androidx.compose.material.icons.rounded.Clear
+import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,15 +35,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.trishit.optimite.domain.model.ProcessInfo
 import com.trishit.optimite.ui.AppUiState
+import com.trishit.optimite.ui.ProcessSort
 import com.trishit.optimite.ui.components.StaggerCard
 import com.trishit.optimite.ui.theme.AppColors
 
 @Composable
-fun ProcessesScreen(state: AppUiState) {
+fun ProcessesScreen(
+    state: AppUiState,
+    onSearch: (String) -> Unit,
+    onSort: (ProcessSort) -> Unit
+) {
     var entered by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { entered = true }
 
@@ -42,7 +59,7 @@ fun ProcessesScreen(state: AppUiState) {
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Row(
             Modifier.fillMaxWidth(),
@@ -51,10 +68,60 @@ fun ProcessesScreen(state: AppUiState) {
         ) {
             Text("TOP PROCESSES", style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.onSurface)
             Text(
-                "${state.processes.size} tracked",
+                "${state.filteredProcesses.size} of ${state.processes.size} tracked",
                 style = MaterialTheme.typography.bodySmall,
                 color = AppColors.TextMuted
             )
+        }
+
+        // Search and Filter Bar
+        StaggerCard(entered = entered, delayMs = 20, modifier = Modifier.fillMaxWidth()) {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedTextField(
+                    value = state.processSearchQuery,
+                    onValueChange = onSearch,
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("Search by name or PID...", color = AppColors.TextMuted) },
+                    leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null, tint = AppColors.Primary) },
+                    trailingIcon = {
+                        if (state.processSearchQuery.isNotEmpty()) {
+                            IconButton(onClick = { onSearch("") }) {
+                                Icon(Icons.Rounded.Clear, contentDescription = null, tint = AppColors.TextMuted)
+                            }
+                        }
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = AppColors.Primary,
+                        unfocusedBorderColor = AppColors.Border,
+                        focusedContainerColor = AppColors.Surface,
+                        unfocusedContainerColor = AppColors.Surface
+                    ),
+                    singleLine = true
+                )
+
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Rounded.Sort,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                        tint = AppColors.TextMuted
+                    )
+                    Text("Sort by:", style = MaterialTheme.typography.labelSmall, color = AppColors.TextMuted)
+                    
+                    ProcessSort.entries.forEach { sortOption ->
+                        SortChip(
+                            label = sortOption.name,
+                            selected = state.processSortBy == sortOption,
+                            onClick = { onSort(sortOption) }
+                        )
+                    }
+                }
+            }
         }
 
         // Header row
@@ -68,10 +135,11 @@ fun ProcessesScreen(state: AppUiState) {
             }
         }
 
+        val processes = state.filteredProcesses
         val maxMem = state.processes.maxOfOrNull { it.memoryMb }?.toFloat()?.coerceAtLeast(1f) ?: 1f
 
-        val lastProcessIndex = state.processes.lastIndex
-        state.processes.forEachIndexed { idx, proc ->
+        val lastProcessIndex = processes.lastIndex
+        processes.forEachIndexed { idx, proc ->
             ProcessRow(
                 proc = proc,
                 index = idx,
@@ -81,7 +149,11 @@ fun ProcessesScreen(state: AppUiState) {
             )
         }
 
-        if (state.processes.isEmpty()) {
+        if (processes.isEmpty() && state.processes.isNotEmpty()) {
+            Box(Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) {
+                Text("No processes match your search.", color = AppColors.TextMuted)
+            }
+        } else if (state.processes.isEmpty()) {
             StaggerCard(entered = entered, delayMs = 80, modifier = Modifier.fillMaxWidth()) {
                 Text(
                     "Fetching process list...",
@@ -96,6 +168,28 @@ fun ProcessesScreen(state: AppUiState) {
             "* Process list refreshes every 3 seconds. Memory shown in MB.",
             style = MaterialTheme.typography.labelSmall,
             color = AppColors.TextMuted
+        )
+    }
+}
+
+@Composable
+private fun SortChip(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(if (selected) AppColors.Primary else Color.Transparent)
+            .clickable { onClick() }
+            .padding(horizontal = 10.dp, vertical = 4.dp)
+    ) {
+        Text(
+            label,
+            style = MaterialTheme.typography.labelSmall,
+            color = if (selected) MaterialTheme.colorScheme.onPrimary else AppColors.TextSecondary,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
         )
     }
 }
@@ -131,7 +225,7 @@ private fun ProcessRow(
         Box(
             modifier = Modifier
                 .fillMaxHeight()
-                .fillMaxWidth(memPercent / 100f)
+                .fillMaxWidth((memPercent / 100f).coerceIn(0f, 1f))
                 .background(
                     rowColor.copy(alpha = 0.2f),
                     rowShape
@@ -146,7 +240,7 @@ private fun ProcessRow(
                 "${index + 1}.",
                 style = MaterialTheme.typography.labelSmall,
                 color = AppColors.TextMuted,
-                modifier = Modifier.width(20.dp)
+                modifier = Modifier.width(28.dp)
             )
             Text(
                 proc.name.take(28),

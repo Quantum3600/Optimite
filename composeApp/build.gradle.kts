@@ -53,17 +53,37 @@ compose.desktop {
         jvmArgs += listOf(
             "--add-opens", "java.desktop/sun.awt=ALL-UNNAMED",
             "--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED",
-            "--add-opens", "java.desktop/sun.awt.windows=ALL-UNNAMED"
+            "--add-opens", "java.desktop/java.awt=ALL-UNNAMED",
+            "--add-opens", "java.desktop/sun.awt.windows=ALL-UNNAMED",
+            "--add-opens", "java.management/com.sun.management=ALL-UNNAMED",
+            "--add-opens", "java.management/sun.management=ALL-UNNAMED",
+            "--add-opens", "java.management/com.sun.management.internal=ALL-UNNAMED",
+            "--add-exports", "java.management/com.sun.management=ALL-UNNAMED",
+            "--add-exports", "java.management/sun.management=ALL-UNNAMED"
         )
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Exe)
-            packageName = "com.trishit.optimite"
-            packageVersion = "1.0.0"
+            packageName = "Optimite"
+            packageVersion = "1.0.1"
+            
+            modules(
+                "jdk.management", 
+                "java.management", 
+                "java.desktop", 
+                "java.scripting", 
+                "jdk.unsupported",
+                "java.sql",
+                "java.xml"
+            )
+
             windows {
                 iconFile.set(project.file("src/jvmMain/resources/icon.ico"))
                 menuGroup = "com.trishit.optimite"
                 upgradeUuid = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                console = false
+                dirChooser = true
+                perUserInstall = true
             }
             macOS {
                 iconFile.set(project.file("src/jvmMain/resources/icon.icns"))

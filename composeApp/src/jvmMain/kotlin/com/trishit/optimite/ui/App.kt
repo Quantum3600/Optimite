@@ -64,7 +64,9 @@ fun App(viewModel: AppViewModel) {
         onTabSelected = viewModel::selectTab,
         onOptimize = viewModel::optimize,
         onCleanTempFiles = viewModel::cleanTempFiles,
-        onDismissError = viewModel::dismissError
+        onDismissError = viewModel::dismissError,
+        onProcessSearch = viewModel::onProcessSearch,
+        onProcessSort = viewModel::onProcessSort
     )
 }
 
@@ -74,7 +76,9 @@ fun AppContent(
     onTabSelected: (AppTab) -> Unit,
     onOptimize: () -> Unit,
     onCleanTempFiles: () -> Unit,
-    onDismissError: () -> Unit
+    onDismissError: () -> Unit,
+    onProcessSearch: (String) -> Unit,
+    onProcessSort: (ProcessSort) -> Unit
 ) {
     AppTheme {
         val colors = MaterialTheme.colorScheme
@@ -109,7 +113,7 @@ fun AppContent(
                             AppTab.DASHBOARD -> DashboardScreen(state, onOptimize, onCleanTempFiles)
                             AppTab.MEMORY    -> MemoryScreen(state, onOptimize)
                             AppTab.STORAGE   -> StorageScreen(state, onCleanTempFiles)
-                            AppTab.PROCESSES -> ProcessesScreen(state)
+                            AppTab.PROCESSES -> ProcessesScreen(state, onProcessSearch, onProcessSort)
                         }
                     }
                 }
@@ -132,8 +136,10 @@ fun AppContent(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        @Suppress("DEPRECATION")
                         Text("⚠", color = colors.onErrorContainer, fontSize = 14.sp)
                         Text(err, style = MaterialTheme.typography.bodySmall, color = colors.onErrorContainer)
+                        @Suppress("DEPRECATION")
                         Text("✕", color = colors.onErrorContainer.copy(0.7f), fontSize = 11.sp)
                     }
                 }
@@ -208,6 +214,8 @@ fun AppMock() {
         onTabSelected = {},
         onOptimize = {},
         onCleanTempFiles = {},
-        onDismissError = {}
+        onDismissError = {},
+        onProcessSearch = {},
+        onProcessSort = {}
     )
 }
